@@ -14,6 +14,7 @@ from .core import TimeTravelCore
 # Optional imports for overlay (with error handling)
 try:
     from .view_overlay import ViewOverlay
+    from .overlay_control import OverlayControlWindow
     from omni.kit.viewport.utility import get_active_viewport_window
     OVERLAY_AVAILABLE = True
 except Exception as e:
@@ -57,6 +58,7 @@ class NetAITimetravelDreamAI(omni.ext.IExt):
         
         # Try to create overlay components (OPTIONAL - won't break if it fails)
         self._overlay = None
+        self._overlay_control = None
         
         if OVERLAY_AVAILABLE:
             try:
@@ -64,9 +66,13 @@ class NetAITimetravelDreamAI(omni.ext.IExt):
                 viewport_window = get_active_viewport_window()
                 
                 if viewport_window:
-                    # Create viewport overlay (3D labels above prims)
-                    self._overlay = ViewOverlay(viewport_window, ext_id)
+                    # Create viewport overlay (3D labels above prims + time display)
+                    self._overlay = ViewOverlay(viewport_window, ext_id, self._core)
                     carb.log_info("[Extension] Viewport overlay created")
+                    
+                    # Create control window
+                    self._overlay_control = OverlayControlWindow(self._overlay)
+                    carb.log_info("[Extension] Overlay control window created")
                 else:
                     carb.log_warn("[Extension] No active viewport found")
             except Exception as e:
@@ -74,6 +80,7 @@ class NetAITimetravelDreamAI(omni.ext.IExt):
                 import traceback
                 carb.log_error(traceback.format_exc())
                 self._overlay = None
+                self._overlay_control = None
         else:
             carb.log_info("[Extension] Overlay features disabled")
         
@@ -118,6 +125,14 @@ class NetAITimetravelDreamAI(omni.ext.IExt):
             except Exception as e:
                 carb.log_error(f"[Extension] Error destroying window: {e}")
             self._window = None
+        
+        # Clean up overlay window (OPTIONAL)
+        if hasattr(self, '_overlay_control') and self._overlay_control:
+            try:
+                self._overlay_control.destroy()
+            except Exception as e:
+                carb.log_error(f"[Extension] Error destroying overlay control: {e}")
+            self._overlay_control = None
         
         # Clean up overlay (OPTIONAL)
         if hasattr(self, '_overlay') and self._overlay:

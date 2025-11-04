@@ -23,7 +23,12 @@ class ObjectIDManipulator(sc.Manipulator):
         self._label_text = label_text
         self._stage = omni.usd.get_context().get_stage()
         self._prim = self._stage.GetPrimAtPath(self._prim_path)
-        self._xformable = UsdGeom.Xformable(self._prim)
+        self._xformable = UsdGeom.Xformable(self._prim) 
+        """
+        UsdGeom.Xformable(self._prim):
+        Prim 객체(self._prim)를 Xformable 인터페이스로 감싸서,
+        해당 Prim의 위치, 회전, 스케일 같은 “Transform 정보”에 접근할 수 있게 만드는 것.
+        """
         self._label = None
         self._transform = None
         self._last_position = None
@@ -34,22 +39,35 @@ class ObjectIDManipulator(sc.Manipulator):
             return
 
         # Get world position
-        xform_cache = UsdGeom.XformCache()
-        world_transform = xform_cache.GetLocalToWorldTransform(self._prim)
-        translation = world_transform.ExtractTranslation()
+        xform_cache = UsdGeom.XformCache() # 변환 계산 캐싱
+        world_transform = xform_cache.GetLocalToWorldTransform(self._prim) # prim의 월드 변환 행렬 추출
+        # print(f"world_transform: {world_transform}")
+        translation = world_transform.ExtractTranslation() # 위치 벡터 x,y,z 추출
+        # print(f"Extracted translation: {translation}")
         
         # Store transform for updates
-        self._transform = sc.Transform(transform=sc.Matrix44.get_translation_matrix(
-            translation[0], translation[1] + 100, translation[2]
+        self._transform = sc.Transform(transform=sc.Matrix44.get_translation_matrix( #Matrix44: 행렬 저장, get_translation_matrix: 위치 행렬 생성
+            translation[0],         # X 좌표
+            translation[1] + 100,   # Y 좌표 (100 단위 위로 오프셋)
+            translation[2]          # Z 좌표
         ))
+        """
+        sc.Matrix44.get_translation_matrix(x, y, z): 이동 행렬 생성
+        3D 공간에서 (0,0,0)을 (x, y, z) 위치로 객체를 이동시키는 이동 행렬을 생성합니다.
+        [ 1, 0, 0, x ]
+        [ 0, 1, 0, y ]
+        [ 0, 0, 1, z ]
+        [ 0, 0, 0, 1 ]
         
+        즉, 그냥 해당 prim의 위치에 오프셋(축 100)을 더한 절대 위치로 라벨의 위치를 지정할 행렬을 생성하는 것임.
+        """
         # Create label at world position (offset 100 units above)
-        with self._transform:
+        with self._transform: # sc.Transform에 포함시킨 label은 해당 위치(transform)에 그려짐
             # Draw label text
             self._label = sc.Label(
                 self._label_text,
                 color=0xFF000000,  # Black text
-                size=24
+                size=28
             )
         
         # Store position for comparison
@@ -108,7 +126,7 @@ class ViewOverlay:
         # Subscribe to stage events
         self._stage_event_sub = self._usd_context.get_stage_event_stream().create_subscription_to_pop(
             self._on_stage_event, name="ViewOverlayStageEvent"
-        )
+        ) # usd_context 를 보면서 stage 이벤트 변화가 생길 때 마다 _on_stage_event 함수를 호출함.
         
         carb.log_info("[ViewOverlay] Initialized")
         
@@ -309,10 +327,15 @@ class ViewOverlay:
             return
 
         # Create scene view
-        with self._viewport_window.get_frame(self._ext_id):
-            self._scene_view = sc.SceneView()
+        with self._viewport_window.get_frame(self._ext_id): 
+            """
+            viewport의 프레임을 가져옴. 그 프레임에UI를 그릴수 있게 함.
+            그리고  self._ext_id에게 할당함. 즉 extension에게 할당함
+            with 문 안에서 생성된 UI 요소들은 이 프레임에 속하게 됨.
+            """
+            self._scene_view = sc.SceneView()   # 3D 공간을 포함하는 컨테이너 역할. 3D 공간에 3D 객체나 라벨 등을 배치할 수 있음.
             
-            with self._scene_view.scene:
+            with self._scene_view.scene: # 루트 scene 컨테이너에 접근하는 속성
                 # Create manipulator for each child prim
                 for prim in parent_prim.GetChildren():
                     prim_name = prim.GetName()
@@ -327,11 +350,11 @@ class ViewOverlay:
                     carb.log_info(f"[ViewOverlay] Tracking '{prim_path}' (ID: {label_id})")
                     
                     # Create manipulator (reads prim position directly)
-                    manipulator = ObjectIDManipulator(prim_path=prim_path, label_text=label_id)
+                    manipulator = ObjectIDManipulator(prim_path=prim_path, label_text=label_id) # prim 마다 manipulator 생성
                     self._manipulators.append(manipulator)
 
             # Add scene view to viewport
-            self._viewport_window.viewport_api.add_scene_view(self._scene_view)
+            self._viewport_window.viewport_api.add_scene_view(self._scene_view) # viewport에 scene view 추가. 즉 화면에 표시
 
         # Subscribe to frame updates
         if not self._update_sub:

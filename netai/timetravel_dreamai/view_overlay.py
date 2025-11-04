@@ -63,12 +63,21 @@ class ObjectIDManipulator(sc.Manipulator):
         """
         # Create label at world position (offset 100 units above)
         with self._transform: # sc.Transform에 포함시킨 label은 해당 위치(transform)에 그려짐
-            # Draw label text
-            self._label = sc.Label(
-                self._label_text,
-                color=0xFF000000,  # Black text
-                size=28
-            )
+            # Billboard effect - always face camera
+            with sc.Transform(look_at=sc.Transform.LookAt.CAMERA):
+                # White circle background
+                sc.Arc(
+                    radius=30,  # 원의 반지름
+                    color=0xFFFFFFFF,  # 하얀색
+                    thickness=40  # 꽉 찬 원을 만들기 위해 두껍게
+                )
+                # Draw label text on top
+                self._label = sc.Label(
+                    self._label_text,
+                    color=0xFF000000,  # Black text
+                    size=28,
+                    alignment=ui.Alignment.CENTER
+                )
         
         # Store position for comparison
         self._last_position = (translation[0], translation[1], translation[2])

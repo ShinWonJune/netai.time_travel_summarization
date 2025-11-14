@@ -5,6 +5,7 @@ from typing import Dict, Any, Optional
 import json
 import os
 from datetime import datetime
+from unittest import result
 
 import requests
 
@@ -107,7 +108,7 @@ class VSSClient:
         system_prompt: Optional[str] = None,
         chunk_duration: Optional[int] = None,
         response_format: str = "json_object",
-        extra_params: Optional[Dict[str, Any]] = None,
+        extra_params: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         VLM 기반 캡션 생성 요청.
@@ -155,7 +156,7 @@ class VSSClient:
             "prompt": final_prompt,
             "system_prompt": final_system_prompt,
             "chunk_duration": cd,
-            "response_format": {"type": response_format},
+            "response_format": {"type": response_format}
         }
 
         # system_prompt가 필요할 경우 포함
@@ -168,10 +169,18 @@ class VSSClient:
 
         headers = {"Content-Type": "application/json"}
 
+        # resp = requests.post(url, data=json.dumps(payload), headers=headers)
+        # self._raise_for_error(resp, "generate_vlm_captions")
+        # return resp.json()
+
+
         resp = requests.post(url, data=json.dumps(payload), headers=headers)
         self._raise_for_error(resp, "generate_vlm_captions")
-        return resp.json()
-
+        result = resp.json()
+        # 서버 응답에 execution_time이 있으면 사용, 없으면 클라이언트 측 측정값 사용
+        if "execution_time" not in result:
+            result["execution_time"] = resp.elapsed.total_seconds()
+        return result
     # ------------------------------------------------------------------
     # 3. 프롬프트 프리셋 관리 기능
     # ------------------------------------------------------------------
@@ -339,21 +348,22 @@ Do not include any reasoning or description; output **only** the JSON results.
     
     # 아래 코드는 실제로 돌릴 때 필요한 ID/모델 이름으로 바꿔서 사용
     # 0. 비디오 삭제 
-    # delete_resp = client.delete_video("4e95ce45-38d7-4663-b14d-a2186d10c8fd")
+    # delete_resp = client.delete_video("b4f6562c-f939-4b4d-a7a2-0ba0358e788b")
     # print(delete_resp)
 
     # 1. 비디오 업로드
-    # upload_resp = client.upload_video("video_21.mp4")
-    # video_id = upload_resp["id"]
-    # print(f"Uploaded video ID: {video_id}")
+    upload_resp = client.upload_video("../video/video_19.mp4")
+    video_id = upload_resp["id"]
+    print(f"Uploaded video ID: {video_id}")
 
-    # 2. VLM 캡션 생성 요청
-    result = client.generate_vlm_captions(
-        video_id="ca7c2056-baa7-4274-a01f-89b342c95a39",
-        model="Qwen3-VL-8B-Instruct",
-        # preset_name="simple_view",
-        preset_name="twin_view",
-    )
-    save_path = f"../outputs/video_21_{timestamp}.json"
-    client.save_json(result, save_path)
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    # # # # 2. VLM 캡션 생성 요청
+    # result = client.generate_vlm_captions(
+    #     video_id="b4f6562c-f939-4b4d-a7a2-0ba0358e788b",
+    #     # model="Qwen3-VL-8B-Instruct",
+    #     model="gpt-4o",
+    #     preset_name="simple_view"
+    #     # preset_name="twin_view"
+    # )
+    # save_path = f"../outputs/gpt_video_18_{timestamp}.json"
+    # client.save_json(result, save_path)
+    # print(json.dumps(result, indent=2, ensure_ascii=False))

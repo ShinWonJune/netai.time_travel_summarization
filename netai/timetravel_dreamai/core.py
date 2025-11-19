@@ -34,6 +34,12 @@ class TimeTravelCore:
         self._event_playback_start_time = None  # When current event started playing
         self._event_playback_duration = 1.0  # Play 1 second at each event
         
+        # Event camera control
+        self._event_positions = {}  # {timestamp_str: (x, y, z)}
+        self._bev_camera_path = "/World/example_camera"  # BEV camera path
+        self._bev_camera_height = 1602.28  # Fixed camera height
+        self._bev_camera_rotation = (0.113508, 90.00041, 89.7861)  # Fixed rotation (YXZ)
+        
         self._usd_context = omni.usd.get_context()
         self._stage = None
         
@@ -374,6 +380,10 @@ class TimeTravelCore:
         try:
             event_time = self._parse_timestamp(event_timestamp)
             self.set_current_time(event_time)
+            
+            # Move BEV camera to event position if available
+            if self._use_event_summary and event_timestamp in self._event_positions:
+                self._move_bev_camera_to_event(event_timestamp)
         except Exception as e:
             carb.log_error(f"[TimeTravel] Failed to parse event timestamp: {event_timestamp}")
     
@@ -431,6 +441,58 @@ class TimeTravelCore:
         """Get list of event timestamps (API for future AI integration)."""
         return self._event_summary.copy()
     
+    def _move_bev_camera_to_event(self, timestamp: str):
+        """
+        Move BEV camera to event position.
+        Uses object's x and z coordinates, maintains fixed height and rotation.
+        
+        Args:
+            timestamp: Event timestamp string
+        """
+        if timestamp not in self._event_positions:
+            return
+        
+        try:
+            if not self._stage:
+                self._stage = self._usd_context.get_stage()
+            
+            if not self._stage:
+                return
+            
+            # Get camera prim
+            camera_prim = self._stage.GetPrimAtPath(self._bev_camera_path)
+            if not camera_prim or not camera_prim.IsValid():
+                carb.log_warn(f"[TimeTravel] Camera not found: {self._bev_camera_path}")
+                return
+            
+            # Get object position from event
+            obj_x, obj_y, obj_z = self._event_positions[timestamp]
+            
+            # Set camera position: use object's x and z, fixed camera height
+            camera_position = Gf.Vec3d(obj_x, self._bev_camera_height, obj_z)
+            
+            # Get xformable
+            xformable = UsdGeom.Xformable(camera_prim)
+            if not xformable:
+                return
+            
+            # Update translate operation
+            translate_op = None
+            for op in xformable.GetOrderedXformOps():
+                if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
+                    translate_op = op
+                    break
+            
+            if not translate_op:
+                translate_op = xformable.AddTranslateOp()
+            
+            translate_op.Set(camera_position)
+            
+            carb.log_info(f"[TimeTravel] BEV camera moved to event at ({obj_x:.1f}, {self._bev_camera_height:.1f}, {obj_z:.1f})")
+            
+        except Exception as e:
+            carb.log_error(f"[TimeTravel] Failed to move BEV camera: {e}")
+    
     def load_events_from_positions_jsonl(self) -> bool:
         """
         Load event timestamps from Events directory positions.jsonl files.
@@ -463,24 +525,35 @@ class TimeTravelCore:
             
             carb.log_info(f"[TimeTravel] Loading events from: {latest_file.name}")
             
-            # Load timestamps from positions file
+            # Load timestamps and positions from positions file
             event_timestamps = []
+            event_positions = {}
+            
             with open(latest_file, 'r', encoding='utf-8') as f:
                 for line in f:
                     entry = json.loads(line)
                     timestamp = entry.get('timestamp')
-                    if timestamp:
+                    position = entry.get('position')
+                    
+                    if timestamp and position:
                         event_timestamps.append(timestamp)
+                        # Store position (x, y, z)
+                        event_positions[timestamp] = (
+                            position.get('x', 0),
+                            position.get('y', 0),
+                            position.get('z', 0)
+                        )
             
             if not event_timestamps:
                 carb.log_warn("[TimeTravel] No timestamps found in position file")
                 return False
             
-            # Update event summary
+            # Update event summary and positions
             self._event_summary = event_timestamps
+            self._event_positions = event_positions
             self._current_event_index = 0
             
-            carb.log_info(f"[TimeTravel] Loaded {len(event_timestamps)} event timestamps")
+            carb.log_info(f"[TimeTravel] Loaded {len(event_timestamps)} event timestamps with positions")
             return True
             
         except Exception as e:

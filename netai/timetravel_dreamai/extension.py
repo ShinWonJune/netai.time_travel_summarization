@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 from .window import TimeTravelWindow
 from .core import TimeTravelCore
+from .event_window import EventProcessingWindow
 
 # Optional imports for overlay (with error handling)
 try:
@@ -55,6 +56,10 @@ class NetAITimetravelDreamAI(omni.ext.IExt):
         # Create main TimeTravel UI window (ALWAYS created)
         self._window = TimeTravelWindow(self._core)
         carb.log_info("[Extension] TimeTravel window created")
+        
+        # Create Event Processing window
+        self._event_window = EventProcessingWindow(self._core, ext_id)
+        carb.log_info("[Extension] Event Processing window created")
         
         # Try to create overlay components (OPTIONAL - won't break if it fails)
         self._overlay = None
@@ -125,6 +130,14 @@ class NetAITimetravelDreamAI(omni.ext.IExt):
             except Exception as e:
                 carb.log_error(f"[Extension] Error destroying window: {e}")
             self._window = None
+        
+        # Clean up event window
+        if hasattr(self, '_event_window') and self._event_window:
+            try:
+                self._event_window.destroy()
+            except Exception as e:
+                carb.log_error(f"[Extension] Error destroying event window: {e}")
+            self._event_window = None
         
         # Clean up overlay window (OPTIONAL)
         if hasattr(self, '_overlay_control') and self._overlay_control:

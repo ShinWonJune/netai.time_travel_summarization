@@ -526,3 +526,129 @@ class TimeTravelCore:
         
         if camera_count > 0:
             carb.log_info(f"[TimeTravel] Hidden {camera_count} cameras")
+    
+    # ------------------------------------------------------------------
+    # Event Processing Methods
+    # ------------------------------------------------------------------
+    def process_event_json(self, json_path: str) -> bool:
+        """
+        Process VLM event detection JSON file.
+        
+        Steps:
+        1. Import and use Event_Post_Processing functions to convert to JSONL
+        2. Load JSONL and extract first object positions
+        3. Save position data to JSONL
+        
+        Args:
+            json_path: Path to VLM output JSON file
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            from pathlib import Path
+            
+            # Import Event_Post_Processing functions
+            from .utils.Event_Post_Processing import (
+                load_json,
+                consolidate_events,
+                save_jsonl
+            )
+            
+            json_path = Path(json_path)
+            if not json_path.exists():
+                carb.log_error(f"[TimeTravel] JSON file not found: {json_path}")
+                return False
+            
+            # Step 1: Load and process JSON data
+            carb.log_info("[TimeTravel] Step 1: Converting JSON to JSONL...")
+            
+            vlm_data = load_json(str(json_path))
+            events = consolidate_events(vlm_data, base_date="2025-01-01")
+            
+            # Save processed JSONL
+            output_jsonl = json_path.parent / f"{json_path.stem}_processed.jsonl"
+            save_jsonl(events, str(output_jsonl))
+            
+            carb.log_info(f"[TimeTravel] JSONL saved: {output_jsonl}")
+            carb.log_info(f"[TimeTravel] Processed {len(events)} unique timestamps")
+            
+            # Step 2: Extract first object positions
+            carb.log_info("[TimeTravel] Step 2: Extracting first object positions...")
+            
+            position_data = self._extract_first_object_positions_from_dict(events)
+            
+            if not position_data:
+                carb.log_error("[TimeTravel] No position data extracted")
+                return False
+            
+            # Step 3: Save position data
+            position_jsonl = json_path.parent / f"{json_path.stem}_positions.jsonl"
+            
+            with open(position_jsonl, 'w', encoding='utf-8') as f:
+                for entry in position_data:
+                    f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+            
+            carb.log_info(f"[TimeTravel] Position data saved: {position_jsonl}")
+            carb.log_info(f"[TimeTravel] Processed {len(position_data)} events")
+            
+            return True
+            
+        except Exception as e:
+            carb.log_error(f"[TimeTravel] Event processing failed: {e}")
+            import traceback
+            carb.log_error(traceback.format_exc())
+            return False
+    
+    def _extract_first_object_positions_from_dict(self, events: Dict[str, List[List[str]]]) -> list:
+        """
+        Extract first object positions from each event in dictionary.
+        
+        Args:
+            events: Dictionary mapping timestamp to list of object ID groups
+                    Example: {"2025-01-01 00:00:28.000": [["obj001", "obj004"]]}
+            
+        Returns:
+            List of dictionaries with timestamp, objid, and position
+        """
+        position_data = []
+        
+        try:
+            for timestamp, obj_pairs in events.items():
+                if not obj_pairs or not obj_pairs[0]:
+                    continue
+                
+                # Get first object from first pair
+                first_objid = obj_pairs[0][0]
+                
+                # Parse timestamp and get position from in-memory data
+                try:
+                    time_obj = self._parse_timestamp(timestamp)
+                    time_data = self.get_data_at_time(time_obj)
+                    
+                    if first_objid in time_data:
+                        x, y, z = time_data[first_objid]
+                        
+                        position_data.append({
+                            "timestamp": timestamp,
+                            "objid": first_objid,
+                            "position": {
+                                "x": x,
+                                "y": y,
+                                "z": z
+                            }
+                        })
+                        
+                        carb.log_info(f"[TimeTravel] Event at {timestamp}: {first_objid} at ({x:.1f}, {y:.1f}, {z:.1f})")
+                    else:
+                        carb.log_warn(f"[TimeTravel] Object {first_objid} not found in data at {timestamp}")
+                
+                except Exception as e:
+                    carb.log_error(f"[TimeTravel] Error processing timestamp {timestamp}: {e}")
+                    continue
+            
+            return position_data
+            
+        except Exception as e:
+            carb.log_error(f"[TimeTravel] Failed to extract positions: {e}")
+            return []

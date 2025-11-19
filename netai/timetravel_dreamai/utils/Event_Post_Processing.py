@@ -20,20 +20,39 @@ def load_json(file_path: str) -> Dict[str, Any]:
 def parse_content(content_str: str) -> List[Dict[str, List[int]]]:
     """
     Parse content string to extract timestamp and object lists.
+    Supports both direct JSON and markdown code block wrapped JSON.
     
     Args:
         content_str: JSON string like '[{"HH:MM:SS": [1, 2]}, ...]'
+                    or markdown wrapped: '```json\n[...]\n```'
     
     Returns:
         List of dictionaries with timestamp and object IDs
     """
     try:
-        # Remove extra whitespace and parse JSON
+        # Remove extra whitespace
         content_str = content_str.strip()
         if not content_str or content_str == "[]":
             return []
         
-        parsed = json.loads(content_str)
+        # Check if content is wrapped in markdown code block
+        if content_str.startswith("```"):
+            # Extract JSON from markdown code block
+            # Format: ```json\n[...]\n```
+            lines = content_str.split('\n')
+            # Remove first line (```json or ```) and last line (```)
+            if len(lines) >= 3:
+                json_content = '\n'.join(lines[1:-1])
+            else:
+                json_content = content_str
+        else:
+            json_content = content_str
+        
+        json_content = json_content.strip()
+        if not json_content or json_content == "[]":
+            return []
+        
+        parsed = json.loads(json_content)
         return parsed if isinstance(parsed, list) else []
     except json.JSONDecodeError as e:
         print(f"Warning: Failed to parse content: {content_str[:50]}... - {e}")

@@ -17,21 +17,21 @@ class VLMClientWindow:
         self._window = ui.Window("VLM Client", width=450, height=285)
         
         with self._window.frame:
-            with ui.VStack(spacing=5, style={"margin": 8}):
+            with ui.VStack(spacing=5, style={"margin": 3}):
                 # Title
-                ui.Label("VLM Video Analysis Client", style={"font_size": 16, "font_weight": "bold"})
+                ui.Label("VLM Video Analysis Client", style={"font_size": 20, "font_weight": "bold"})
                 
                 # Video input section
                 with ui.HStack(height=22, spacing=5):
-                    ui.Label("Video:", width=50, style={"font_size": 12, "font_weight": "bold"})
+                    ui.Label("Video:", width=50, style={"font_size": 16, "font_weight": "bold"})
                     ui.Label("video/", width=45)
                     self._video_filename_field = ui.StringField()
                     self._video_filename_field.model.set_value("video_19.mp4")
                 
                 # Video ID display
                 with ui.HStack(height=20, spacing=5):
-                    ui.Label("Video ID:", width=60, style={"font_size": 11})
-                    self._video_id_label = ui.Label("Not uploaded", style={"color": 0xFF888888, "font_size": 11})
+                    ui.Label("Video ID:", width=60, style={"font_size": 15})
+                    self._video_id_label = ui.Label("Not uploaded", style={"color": 0xFF888888, "font_size": 15})
                 
                 # Action buttons
                 with ui.HStack(height=28, spacing=8):
@@ -51,7 +51,7 @@ class VLMClientWindow:
                     ui.Line(style={"color": 0xFF666666})
                 
                 # Model and preset selection
-                ui.Label("Settings:", style={"font_size": 12, "font_weight": "bold"})
+                ui.Label("Settings:", style={"font_size": 16, "font_weight": "bold"})
                 
                 with ui.HStack(height=22, spacing=5):
                     ui.Label("Model:", width=50)
@@ -73,9 +73,9 @@ class VLMClientWindow:
                 
                 # Status display
                 with ui.HStack(height=20, spacing=5):
-                    ui.Label("Status:", width=50, style={"font_size": 11})
-                    self._status_label = ui.Label("Ready", style={"color": 0xFF00AA00, "font_size": 11})
-    
+                    ui.Label("Status:", width=50, style={"font_size": 16})
+                    self._status_label = ui.Label("Ready", style={"color": 0xFF00AA00, "font_size": 16})
+
     def _on_upload_clicked(self):
         """Handle Upload button click."""
         video_filename = self._video_filename_field.model.get_value_as_string()

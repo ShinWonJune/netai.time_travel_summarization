@@ -19,11 +19,8 @@ class PromptPreset:
 
 class VSSClient:
     """
-    Clean-room 구현 VSS REST 클라이언트.
-
-    - NVIDIA의 내부 CLI 코드에 의존하지 않고,
-      공개된 REST API 엔드포인트만 사용한다고 가정한 구현입니다.
-    - 이 파일은 자유롭게 배포/논문 부록에 포함해도 됩니다.
+    NVIDIA VSS (Video Search and Summarization) 서버와 통신하는 클라이언트.
+    공개된 VSS API 문서를 기준으로 작성됨. (https://docs.nvidia.com/vss/latest/content/API_doc.html)
     """
 
     def __init__(
@@ -59,7 +56,9 @@ class VSSClient:
 
         Args:
             file_path: 업로드할 파일 경로
-            purpose: 서버에서 사용하는 목적 태그 (기본: "vision")
+            purpose: 서버에서 사용하는 목적 태그 
+                기본: "vision". 그 이외에는 뭐가 있는지 VSS API 문서에 명시되어 있지 않음..
+                참고: https://docs.nvidia.com/vss/latest/content/API_doc.html#files-files-post
             media_type: "video" 또는 "image"
 
         Returns:
@@ -188,6 +187,7 @@ class VSSClient:
         if "execution_time" not in result:
             result["execution_time"] = resp.elapsed.total_seconds()
         return result
+    
     # ------------------------------------------------------------------
     # 3. 프롬프트 프리셋 관리 기능
     # ------------------------------------------------------------------

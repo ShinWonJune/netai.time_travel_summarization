@@ -17,7 +17,7 @@ class OverlayControlWindow:
         
         # Create compact control window
         self._window = ui.Window(
-            "Overlay Control", 
+            "View Overlay", 
             width=180, 
             height=85,  # Reduced height for tighter fit
             visible=True
@@ -40,7 +40,7 @@ class OverlayControlWindow:
                     self._time_checkbox = ui.CheckBox(width=16)
                     self._time_checkbox.model.set_value(True)
                     self._time_checkbox.model.add_value_changed_fn(self._on_time_visibility_changed)
-                    ui.Label("Date & Time", style={"font_size": 13})
+                    ui.Label("Timestamp", style={"font_size": 13})
                 
                 # Push everything to top
                 ui.Spacer()

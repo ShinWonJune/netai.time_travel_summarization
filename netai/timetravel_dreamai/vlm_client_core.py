@@ -1,4 +1,6 @@
-# vlm_client_core.py - Core logic for VLM Client
+"""
+VLM 서버에 동영상을 업로드하고, VLM 분석을 요청하고, 결과를 저장하는 `VLM Client module` 의 core.
+"""
 
 import os
 from pathlib import Path
@@ -31,7 +33,7 @@ class VLMClientCore:
     def _initialize_client(self):
         """Initialize VSS Client with presets."""
         try:
-            from .utils.video_client import VSSClient, PromptPreset
+            from .utils.VSS_client import VSSClient, PromptPreset
             
             # Get base URL from environment or use default
             base_url = os.environ.get("VIA_BACKEND", "http://localhost:8100")
@@ -228,7 +230,7 @@ Do not include any reasoning or description; output **only** the JSON results.
         Generate VLM captions for current video.
         
         Args:
-            model: VLM model name (default: "gpt-4o")
+            model: VLM model name (default: "Qwen3-VL-8B-Instruct")
             preset_name: Prompt preset name (default: "simple_view")
             video_filename: Optional video filename for output naming
             chunk_overlap_duration: Chunk overlap duration in seconds (default: 0)

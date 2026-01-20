@@ -1,3 +1,10 @@
+"""
+X_AI Studio 범위 내부에서 이동하는 궤적 데이터를 생성하는 모듈
+- 객체 수, 데이터 길이, 간격, 속도 범위 등을 설정하여 궤적 데이터를 생성할 수 있음
+
+사용 방법은 최하단 예시 코드 확인
+"""
+
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -160,49 +167,29 @@ class TrajectoryGenerator:
 
 # 사용 예시
 if __name__ == "__main__":
-    # 설정 예시 1: 2개 객체, 1분, 1초 간격
-    # print("예시 1: 2개 객체, 1분, 1초 간격")
-    # generator = TrajectoryGenerator(
-    #     num_objects=2,
-    #     duration_minutes=1,
-    #     interval_seconds=1.0,
-    #     min_speed=50,
-    #     max_speed=200
-    # )
-    # df1 = generator.generate()
-    # df1.to_csv('trajectory_1min_1s.csv', index=False)
-    # print(f"생성된 데이터: {len(df1)} rows")
-    # print(df1.head(10))
-    # print("\n" + "="*50 + "\n")
-    
-    # 설정 예시 2: 5개 객체, 10분, 0.5초 간격
-    print("예시 2: 5개 객체, 10분, 0.5초 간격")
+    """
+    num_objects: 객체 수 설정
+    duration_minutes: 데이터 길이 (timespan) 설정
+    interval_seconds: 데이터 업데이트 간격 설정
+    min_speed: 객체의 최소 속도 설정 
+    max_speed: 객체의 최대 속도 설정
+    (120 units/second 가 평균 사람 걷는 속도)
+
+    """
+    print("예시 2: 4개 객체, 1분, 0.2초 간격")
     generator = TrajectoryGenerator(
-        num_objects=4,
-        duration_minutes=720,
-        interval_seconds=0.2,
-        min_speed=150,
-        max_speed=200
+        num_objects=4, 
+        duration_minutes=1,
+        interval_seconds=0.2, 
+        min_speed=150, 
+        max_speed=200  
     )
     df2 = generator.generate()
-    df2.to_csv('../data/living_trajectory_720min_0.2s.csv', index=False)
+    df2.to_csv('../data/living_trajectory_1min_0.2s.csv', index=False) # 데이터 저장
     print(f"생성된 데이터: {len(df2)} rows")
     print(df2.head(10))
     print("\n" + "="*50 + "\n")
     
-    # 설정 예시 3: 10개 객체, 1시간, 5초 간격
-    # print("예시 3: 10개 객체, 1시간, 5초 간격")
-    # generator = TrajectoryGenerator(
-    #     num_objects=10,
-    #     duration_minutes=60,
-    #     interval_seconds=5.0,
-    #     min_speed=50,
-    #     max_speed=150
-    # )
-    # df3 = generator.generate()
-    # df3.to_csv('trajectory_1hour_5s.csv', index=False)
-    # print(f"생성된 데이터: {len(df3)} rows")
-    # print(df3.head(10))
     
     # # 통계 정보 출력
     # print("\n" + "="*50)

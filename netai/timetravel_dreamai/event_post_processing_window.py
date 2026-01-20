@@ -22,12 +22,12 @@ class EventProcessingWindow:
     
     def _build_ui(self):
         """Build the event processing window UI."""
-        self._window = ui.Window("Event Processing", width=400, height=300)
+        self._window = ui.Window("Event Post Processing", width=400, height=300)
         
         with self._window.frame:
-            with ui.VStack(spacing=10, style={"margin": 10}):
+            with ui.VStack(spacing=10, style={"margin": 3}):
                 # Title
-                ui.Label("VLM Event Processing", height=30, style={"font_size": 18, "font_weight": "bold"})
+                ui.Label("Event Post Processing", height=30, style={"font_size": 18, "font_weight": "bold"})
                 
                 ui.Spacer(height=5)
                 
@@ -35,21 +35,21 @@ class EventProcessingWindow:
                 with ui.VStack(spacing=5):
                     ui.Label("Input JSON File:", height=20)
                     with ui.HStack(spacing=5):
-                        ui.Label("outputs/", width=60)
+                        ui.Label("outputs/", width=60,style={"font_size": 16} )
                         ui.StringField(model=self._json_filename_model, height=25)
-                    ui.Label("(VLM output JSON file)", height=15, style={"color": 0xFF888888, "font_size": 12})
+                    ui.Label("(VLM output JSON file)", height=15, style={"color": 0xFF888888, "font_size": 16})
                 
-                ui.Spacer(height=10)
-                
+                ui.Spacer(height=5)
+
                 # Process Button
                 self._process_button = ui.Button("Process Events", height=40, clicked_fn=self._on_process_clicked)
                 
-                ui.Spacer(height=10)
+                ui.Spacer(height=5)
                 
                 # Status Display
                 with ui.VStack(spacing=5):
-                    ui.Label("Status:", height=20, style={"font_weight": "bold"})
-                    with ui.ScrollingFrame(height=100):
+                    ui.Label("Status:", height=20, style={"font_weight": "bold","font_size": 16})
+                    with ui.ScrollingFrame(height=50):
                         self._status_label = ui.Label(
                             "Ready to process events.",
                             word_wrap=True,

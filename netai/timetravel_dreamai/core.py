@@ -732,7 +732,7 @@ class TimeTravelCore:
             from pathlib import Path
             
             # Import Event_Post_Processing functions
-            from .utils.Event_Post_Processing import (
+            from .event_post_processing_core import (
                 load_json,
                 consolidate_events,
                 save_jsonl

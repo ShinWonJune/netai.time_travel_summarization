@@ -10,14 +10,14 @@ import os
 from pathlib import Path
 from .window import TimeTravelWindow
 from .core import TimeTravelCore
-from .event_window import EventProcessingWindow
+from .event_post_processing_window import EventProcessingWindow
 from .vlm_client_core import VLMClientCore
 from .vlm_client_window import VLMClientWindow
 
 # Optional imports for overlay (with error handling)
 try:
-    from .view_overlay import ViewOverlay
-    from .overlay_control import OverlayControlWindow
+    from .view_overlay_core import ViewOverlay
+    from .view_overlay_window import OverlayControlWindow
     from omni.kit.viewport.utility import get_active_viewport_window
     OVERLAY_AVAILABLE = True
 except Exception as e:

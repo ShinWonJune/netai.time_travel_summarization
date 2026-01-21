@@ -26,6 +26,7 @@
 ### 0. VLM 서버 실행
 VLM 서버를 실행합니다. NVIDIA VSS (동영상 데이터 전달 파이프라인) 와 VLM container로 구성.
 
+---
 ### 1. 궤적 데이터 생성
 디지털트윈 환경에서 객체의 움직임을 표현할 시계열 궤적 데이터를 생성.
 
@@ -34,6 +35,7 @@ python utils/trajectory_data_generater_XAI_Studio.py
 ```
 파일 내부에서 데이터 생성을 위한 변수 설정
 
+---
 ### 2. Config 설정
 `config.json` (또는 관련 설정 파일)에서 다음 항목을 설정.
 *   **data_path**: 생성된 궤적 데이터(.csv) 경로 지정

@@ -1,6 +1,7 @@
 # Time Travel Summarization Extension
 
 이 문서는 **Time Travel Summarization Framework**를 구현한 **Time_travel_Summarization** Extension의 사용 설명서입니다.
+
 본 프레임워크는 시계열 궤적 데이터를 활용하여 디지털트윈의 과거 상태를 복원하고, 이를 기반으로 **Event-based Summarization** (현재 '충돌' 이벤트 지원)을 생성합니다.
 
 > **Extension ID:** `netai.timetravel_dreamai`
@@ -9,8 +10,9 @@
 ## 📝 Note: 용어 및 구조 정의
 
 *   **Time Travel의 정의**:
-    *   **본 문서:** 시간의 흐름에 따라 객체의 위치 상태를 과거 시점으로 복원하고 재생하는 기능.
+    *   **본 문서:** 시간의 흐름에 따라 객체의 위치 상태를 복원하고 재생하는 기능.
     *   **공식적(교수님) 관점:** 단순 복원을 넘어선 통합적인 시공간 분석 기능의 통칭. 본 프레임워크는 이를 지원하는 도구입니다.
+
 *   **익스텐션 구조**:
     *   익스텐션은 다양한 모듈로 구성되며 `extension.py`를 통해 통합 초기화됩니다.
     *   모듈: Time Travel, View overlay, Vlm Client, Event Post-Processing

@@ -26,21 +26,21 @@ class OverlayControlWindow:
         with self._window.frame:
             with ui.VStack(spacing=3, style={"margin": 3}):  # Tighter spacing and margin
                 # Title
-                ui.Label("Display Options", style={"font_size": 14, "font_weight": "bold"})
+                ui.Label("Display Options", style={"font_size": 20, "font_weight": "bold"})
                 
                 # Object ID labels toggle
                 with ui.HStack(height=20):
                     self._labels_checkbox = ui.CheckBox(width=16)
                     self._labels_checkbox.model.set_value(True)
                     self._labels_checkbox.model.add_value_changed_fn(self._on_labels_visibility_changed)
-                    ui.Label("Object IDs", style={"font_size": 13})
+                    ui.Label("Object IDs", style={"font_size": 18})
                 
                 # Time display toggle
                 with ui.HStack(height=20):
                     self._time_checkbox = ui.CheckBox(width=16)
                     self._time_checkbox.model.set_value(True)
                     self._time_checkbox.model.add_value_changed_fn(self._on_time_visibility_changed)
-                    ui.Label("Timestamp", style={"font_size": 13})
+                    ui.Label("Timestamp", style={"font_size": 18})
                 
                 # Push everything to top
                 ui.Spacer()

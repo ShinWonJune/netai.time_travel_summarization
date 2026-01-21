@@ -21,7 +21,7 @@ class VLMClientCore:
         
         # Default paths
         self._videos_base_path = Path(__file__).parent / "video"
-        self._outputs_base_path = Path(__file__).parent / "outputs"
+        self._outputs_base_path = Path(__file__).parent / "vlm_outputs"
         
         # Ensure directories exist
         self._videos_base_path.mkdir(exist_ok=True)

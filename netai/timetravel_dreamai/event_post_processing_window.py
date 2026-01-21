@@ -35,7 +35,7 @@ class EventProcessingWindow:
                 with ui.VStack(spacing=5):
                     ui.Label("Input JSON File:", height=20)
                     with ui.HStack(spacing=5):
-                        ui.Label("outputs/", width=60,style={"font_size": 16} )
+                        ui.Label("vlm_outputs/", width=60,style={"font_size": 16} )
                         ui.StringField(model=self._json_filename_model, height=25)
                     ui.Label("(VLM output JSON file)", height=15, style={"color": 0xFF888888, "font_size": 16})
                 
@@ -68,7 +68,7 @@ class EventProcessingWindow:
         
         # Construct full path
         base_dir = Path(__file__).parent
-        json_path = base_dir / "outputs" / json_filename
+        json_path = base_dir / "vlm_outputs" / json_filename
         
         if not json_path.exists():
             self._update_status(f"Error: File not found: {json_path}", error=True)
@@ -85,7 +85,7 @@ class EventProcessingWindow:
                 self._update_status("Events processed successfully!\n" + 
                                   f"- JSONL saved\n" +
                                   f"- Position data extracted\n" +
-                                  f"Check outputs/ folder for results.", 
+                                  f"Check vlm_outputs/ folder for results.", 
                                   success=True)
             else:
                 self._update_status("✗ Event processing failed. Check console for details.", error=True)

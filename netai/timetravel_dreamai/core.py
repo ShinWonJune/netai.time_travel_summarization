@@ -505,23 +505,22 @@ class TimeTravelCore:
             from pathlib import Path
             import json
             
-            # Get outputs_positions directory path
+            # Get event_list directory path
             current_file_dir = Path(__file__).parent
-            outputs_positions_dir = current_file_dir / "outputs_positions"
+            eventlist_dir = current_file_dir / "event_list"
             
-            if not outputs_positions_dir.exists():
-                carb.log_info("[TimeTravel] outputs_positions directory not found")
+            if not eventlist_dir.exists():
+                carb.log_info("[TimeTravel] event_list directory not found")
                 return False
-            
-            # Find all positions.jsonl files
-            position_files = list(outputs_positions_dir.glob("*_positions.jsonl"))
-            
-            if not position_files:
-                carb.log_info("[TimeTravel] No position files found in outputs_positions directory")
+            # Find all eventlist.jsonl files
+            eventlist_files = list(eventlist_dir.glob("*_eventlist.jsonl"))
+
+            if not eventlist_files:
+                carb.log_info("[TimeTravel] No eventlist files found in event_list directory")
                 return False
             
             # Use the most recent file (by modification time)
-            latest_file = max(position_files, key=lambda p: p.stat().st_mtime)
+            latest_file = max(eventlist_files, key=lambda p: p.stat().st_mtime)
             
             carb.log_info(f"[TimeTravel] Loading events from: {latest_file.name}")
             
@@ -748,11 +747,10 @@ class TimeTravelCore:
             
             vlm_data = load_json(str(json_path))
             events = consolidate_events(vlm_data, base_date="2025-01-01")
-            
-            # Save processed JSONL to output_processed directory (same level as outputs)
-            output_processed_dir = json_path.parent.parent / "output_processed"
+            # Save processed JSONL to intermediate_results directory (same level as outputs)
+            output_processed_dir = json_path.parent.parent / "intermediate_results"
             output_processed_dir.mkdir(exist_ok=True)
-            output_jsonl = output_processed_dir / f"{json_path.stem}_processed.jsonl"
+            output_jsonl = output_processed_dir / f"{json_path.stem}_intermediate.jsonl"
             save_jsonl(events, str(output_jsonl))
             
             carb.log_info(f"[TimeTravel] JSONL saved: {output_jsonl}")
@@ -760,26 +758,25 @@ class TimeTravelCore:
             
             # Step 2: Extract first object positions
             carb.log_info("[TimeTravel] Step 2: Extracting first object positions...")
-            
-            position_data = self._extract_first_object_positions_from_dict(events)
-            
-            if not position_data:
-                carb.log_error("[TimeTravel] No position data extracted")
+
+            event_list = self._generate_event_list(events)
+
+            if not event_list:
+                carb.log_error("[TimeTravel] No event list data extracted")
                 return False
-            
-            # Step 3: Create outputs_positions directory and save position data (same level as outputs)
-            outputs_positions_dir = json_path.parent.parent / "outputs_positions"
-            outputs_positions_dir.mkdir(exist_ok=True)
-            
-            position_jsonl = outputs_positions_dir / f"{json_path.stem}_positions.jsonl"
-            
-            with open(position_jsonl, 'w', encoding='utf-8') as f:
-                for entry in position_data:
+            # Step 3: Create event_lists directory and save event list data (same level as outputs)
+            event_lists_dir = json_path.parent.parent / "event_list"
+            event_lists_dir.mkdir(exist_ok=True)
+
+            event_lists_dir_jsonl = event_lists_dir / f"{json_path.stem}_eventlist.jsonl"
+
+            with open(event_lists_dir_jsonl, 'w', encoding='utf-8') as f:
+                for entry in event_list:
                     f.write(json.dumps(entry, ensure_ascii=False) + '\n')
-            
-            carb.log_info(f"[TimeTravel] Position data saved: {position_jsonl}")
-            carb.log_info(f"[TimeTravel] Processed {len(position_data)} events")
-            
+
+            carb.log_info(f"[TimeTravel] event list data saved: {event_lists_dir_jsonl}")
+            carb.log_info(f"[TimeTravel] Processed {len(event_list)} events")
+
             return True
             
         except Exception as e:
@@ -787,10 +784,12 @@ class TimeTravelCore:
             import traceback
             carb.log_error(traceback.format_exc())
             return False
-    
-    def _extract_first_object_positions_from_dict(self, events: Dict[str, List[List[str]]]) -> list:
+
+    def _generate_event_list(self, events: Dict[str, List[List[str]]]) -> list:
         """
-        Extract first object positions from each event in dictionary.
+        각 이벤트의 첫 번째 객체의 위치를 추출.
+        그리고 extension의 내부 메모리 데이터를 사용하여 첫 객체의 위치 정보 확보.
+        해당 위치를 타임스탬프와 함께 리스트로 반환.
         
         Args:
             events: Dictionary mapping timestamp to list of object ID groups

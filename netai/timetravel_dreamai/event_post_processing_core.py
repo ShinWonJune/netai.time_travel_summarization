@@ -88,7 +88,8 @@ def format_objid_for_core(obj_num: int) -> str:
 
 def consolidate_events(data: Dict[str, Any], base_date: str = "2025-01-01") -> Dict[str, List[List[str]]]:
     """
-    Consolidate all events from chunk_responses and convert to core.py format.
+    VLM 의 chunk_responses 에서 모든 이벤트를 통합하여 정돈된 json 포맷으로 변환합니다.
+    Consolidate all events from chunk_responses and convert to organized JSON format.
     
     Args:
         data: The loaded JSON data
@@ -237,10 +238,10 @@ def main():
     if args.output:
         output_path = args.output
     else:
-        # Create output_processed directory at the same level as outputs
-        output_dir = input_path.parent.parent / "output_processed"
+        # Create intermediate_results directory at the same level as outputs
+        output_dir = input_path.parent.parent / "intermediate_results"
         output_dir.mkdir(exist_ok=True)
-        output_path = str(output_dir / f"{input_path.stem}_processed.jsonl")
+        output_path = str(output_dir / f"{input_path.stem}_intermediate.jsonl")
     
     # Save JSONL
     save_jsonl(events, output_path)

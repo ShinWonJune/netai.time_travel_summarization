@@ -82,9 +82,14 @@ docker run -d \
 3.  **Depends_on 전부 비활성화**: 불필요한 서비스(DB 등) 실행 방지 (`services/via-server/depends_on`).
     ```yaml
     # depends_on:
-    #   milvus-standalone:
-    #     condition: service_healthy
-    #   ...
+      # milvus-standalone:
+      #   condition: service_healthy
+      # graph-db:
+      #   condition: service_started
+      # arango-db:
+      #   condition: service_started
+      # minio:
+      #   condition: service_started
     ```
 
 #### 2.1.4. 파이프라인 버그 수정 (코드 패치)
@@ -149,6 +154,7 @@ export VIA_VLM_OPENAI_MODEL_DEPLOYMENT_NAME="Qwen3-VL-8B-Instruct"
 
 ```bash
 # 예시: Cosmos-Reason1 사용 시 주석 해제
+# Set VLM to Cosmos-Reason1
 # export VLM_MODEL_TO_USE=cosmos-reason1
 # export MODEL_PATH=git:https://huggingface.co/nvidia/Cosmos-Reason1-7B
 # export NVIDIA_VISIBLE_DEVICES=2

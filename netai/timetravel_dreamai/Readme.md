@@ -76,7 +76,7 @@ VLM이 이벤트 발생 시간과 연루된 객체를 특정할 수 있도록 �
 *   timestamp, objectIDs overlay 체크박스 선택
 
 > **구현 파일:**
-> *   `view_overlay.py`, `overlay_control.py`
+> *   `modules/view_overlay.py`, `modules/overlay_control.py`
 ---
 ### 6. Visual Abstraction & Temporal Acceleration (Optional)
 
@@ -140,9 +140,11 @@ VLM 서버에 동영상을 upload하고, 추론 요청(generate)하는 두 과�
 **사용법:**
 *   Upload -> Settings -> Genearte
 
-> **구현 파일:** `vlm_client_core.py`, `vlm_client_window.py`
-*   동영상 청크 길이는 `vlm_client_core.py`의 `default_chunk_duration` 에서 설정 가능
-*   chunk 당 frame 개수는 vlm server에서 설정
+> **구현 파일:** `modules/vlm_client_core.py`, `modules/vlm_client_window.py`, `utils/VSS_client`
+*   VLM 서버의 동영상 처리 파이프라인(VSS)과 통신하는 기능은 `utils/VSS_client` 에 구현
+*   `vlm_client_core.py`는 `VSS_client`를 활용하여 익스텐션의 구조와 경로에 맞게 작업을 지시하는 역할
+    *   경로 설정, 프롬프트 정의, 업로드된 비디오 ID 상태관리 등
+    *   VLM에 전달되는 동영상 청크의 길이는 `modules/vlm_client_core.py`의 `default_chunk_duration` 에서 설정 가능. (청크에 포함되는 frame 개수는 VLM server에서 설정)
 ---
 ### 9. Event Post Processing
 
@@ -159,7 +161,7 @@ core.py 에서 event_post_processing_core.py 를 import하여 데이터를 가�
 **사용법:**
 *   Input JSON File에 파일 이름 복붙 -> Process Evetns 버튼
 
-> **구현 파일:** `core.py`, `event_post_processing_core.py`, `event_post_processing_window.py`
+> **구현 파일:** `core.py`, `modules/event_post_processing_core.py`, `modules/event_post_processing_window.py`
 ---
 ### 10. Event-based Summarization Playback
 

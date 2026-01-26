@@ -114,7 +114,7 @@ class VSSClient:
         extra_params: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
-        VLM 기반 캡션 생성 요청.
+        VLM 기반 캡션 생성 요청. 이 요청을 기반으로 timestamp와 object ID 추출이 이루어짐.
 
         Args:
             video_id: VSS에 등록된 비디오 ID

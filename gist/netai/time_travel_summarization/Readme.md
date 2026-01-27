@@ -26,7 +26,7 @@
 *   USD Composer를 빌드한다. (`.\repo.bat build` for window, `.\repo.sh build` for linux)
 
 ### 2. Extenson 설치
-*   kit-app-template/source/extension 경로에 Time Travel Summarization github repository를 clone 한다. (https://github.com/ShinWonJune/netai.time_travel_summarization.git)
+*   kit-app-template/source/extension 경로에 Time Travel Summarization 디렉토리를 복사한다. 
 
 ### 3. USD Composer 실행
 *   USD Composer를 실행한다. (`.\repo.bat launch`)

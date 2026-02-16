@@ -1,6 +1,8 @@
 """
 VLM 서버에 동영상을 업로드하고, VLM 분석을 요청하고, 결과를 저장하는 `VLM Client module` 의 core.
 default_chunk_duration=2 초, default_chunk_overlap_duration=0 초로 설정됨.
+
+VLM 서버 통신: _initialize_client 메서드에서 직접 IP 주소와 포트를 지정하여 통신.
 """
 
 import os
@@ -37,7 +39,9 @@ class VLMClientCore:
             from .utils.VSS_client import VSSClient, PromptPreset
             
             # Get base URL from environment or use default
-            base_url = os.environ.get("VIA_BACKEND", "http://localhost:8100")
+            # VLM 서버 ip 설정.
+            # port는 video-search-and-summarization/deploy/docker/remote_llm_deployment/.env 에서 설정, BACKEND_PORT=8100         
+            base_url = os.environ.get("VIA_BACKEND", "http://10.38.38.40:8100")
             
             # Define prompt presets
             presets = {

@@ -47,10 +47,7 @@ class NetAITimetravelDreamAI(omni.ext.IExt):
             # Auto-generate astronauts if enabled
             if self._core._config.get('auto_generate', False):
                 self._core._prim_map = self._core.auto_generate_astronauts()
-            
-            # Auto-generate astronauts if enabled
-            if self._core._config.get('auto_generate', False):
-                self._core._prim_map = self._core.auto_generate_astronauts()
+
             
             # Load data
             self._core.load_data()

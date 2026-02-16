@@ -14,24 +14,21 @@
 
 *   **익스텐션 구조**:
     *   익스텐션은 다양한 모듈로 구성되며 `extension.py`를 통해 통합 초기화.
-    *   모듈: Time Travel, View overlay, Vlm Client, Event Post-Processing
+    *   모듈: Time Travel, View overlay, VLM Client, Event Post-Processing
+    *   익스텐션 외부의 VLM 서버를 통해 추론 (VLM Client가 중재)
 
-## Extension 설치 가이드
+## Extension 설치 가이드 (Local Installation)
 
-### 1. USD Composer 설치
+1. **Extension 다운로드**
+   ```bash
+   git clone https://github.com/SmartX-Team/Omniverse.git
+   ```
 
-*   Omniverse kit-app-template 레포(https://github.com/NVIDIA-Omniverse/kit-app-template.git)를 clone 한다. 
-*   레포지토리의 **Prerequisits and Environment Setup** 을 따라 **USD COmposer** 설치한다.
-*   **새로운 어플리케이션을 생성하는 과정(.\repo.bat template new)에서 `? Do you want to add application layers? [ENTER to confirm]` 에서 `Yes`  를 선택한 뒤 `[omni_default_streaming]: Omniverse Kit App Streaming (Default)` 를 체크하여 설치한다.** (선택하지 않을 시 뷰포트 로드가 불가한 에러 발생)
-*   USD Composer를 빌드한다. (`.\repo.bat build` for window, `.\repo.sh build` for linux)
-
-### 2. Extenson 설치
-*   kit-app-template/source/extension 경로에 Time Travel Summarization 디렉토리를 복사한다. 
-
-### 3. USD Composer 실행
-*   USD Composer를 실행한다. (`.\repo.bat launch`)
-*   Developer/Extension의 검색창에 `netai` 검색
-*   `NVIDIA`의 `Sample` 항목에서 `TIME_TRAVEL_SUMMARIZATION` 활성화
+2. **Local Path 추가**
+   *    USD Composer에서: **Developer → Extensions → ☰ → Settings → Extension Search Path**
+   *    `[NetAI]Time_Travel_Summarization`의 `exts` 폴더의 전체 경로 추가.
+        *   예시: `C:\Users\wonjune\workspace\Omniverse\Extension\[NetAI]Time_Travel_Summarization\exts`
+   *    Third party 에서 Extension 실행
 
 
 ---
@@ -141,8 +138,9 @@ Movie Capture는 기본적으로 10 FPS 로 캡쳐를 진행함.
 ---
 ### 8. VLM Client
 
-생성된 영상을 VLM 서버(NVIDIA VSS)로 전송하고 추론 결과를 받음.  
-VLM 서버에 동영상을 upload하고, 추론 요청(generate)하는 두 과정을 거침  
+생성된 영상을 VLM 서버(NVIDIA VSS)로 전송 및 추론 결과를 수신.  
+VLM 서버에 동영상을 upload하고, 추론 요청(generate)하는 두 과정을 거침.
+VLM 서버 ip는 `vlm_client_core.py` 의 `_initialize_client` 메서드에서 설정
 
 **기능:**
 *   **Upload**: 생성한 `video_n.mp4` VLM 서버에 업로드.
@@ -155,11 +153,11 @@ VLM 서버에 동영상을 upload하고, 추론 요청(generate)하는 두 과�
 *   **결과**: `vlm_outputs/` 경로에 JSON 형태로 저장됨.
 
 **사용법:**
-*   Upload -> Settings -> Genearte
+*   Upload 버튼 (비디오 전송) -> Settings 확인 -> Genearte 버튼 (추론 요청)
 
 > **구현 파일:** `modules/vlm_client_core.py`, `modules/vlm_client_window.py`, `utils/VSS_client`
 *   VLM 서버의 동영상 처리 파이프라인(VSS)과 통신하는 기능은 `utils/VSS_client` 에 구현
-*   `vlm_client_core.py`는 `VSS_client`를 활용하여 익스텐션의 구조와 경로에 맞게 작업을 지시하는 역할
+*   `vlm_client_core.py`는 `VSS_client`를 활용하여 작업을 지시하는 역할
     *   경로 설정, 프롬프트 정의, 업로드된 비디오 ID 상태관리 등
     *   VLM에 전달되는 동영상 청크의 길이는 `modules/vlm_client_core.py`의 `default_chunk_duration` 에서 설정 가능. (청크에 포함되는 frame 개수는 VLM server에서 설정)
 ---
